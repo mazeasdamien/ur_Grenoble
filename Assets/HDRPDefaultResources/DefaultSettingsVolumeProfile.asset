@@ -129,16 +129,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59b6606ef2548734bb6d11b9d160bc7e, type: 3}
   m_Name: HDRISky
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   rotation:
     m_OverrideState: 1
-    m_Value: 235
+    m_Value: 53.4
   skyIntensityMode:
     m_OverrideState: 0
     m_Value: 0
   exposure:
     m_OverrideState: 1
-    m_Value: 15.93
+    m_Value: 1.66
   multiplier:
     m_OverrideState: 0
     m_Value: 1
@@ -296,18 +296,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d7593b3a9277ac4696b20006c21dde2, type: 3}
   m_Name: VisualEnvironment
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   skyType:
     m_OverrideState: 1
     m_Value: 1
   cloudType:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   skyAmbientMode:
     m_OverrideState: 0
     m_Value: 0
   windOrientation:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   windSpeed:
     m_OverrideState: 0
@@ -330,7 +330,7 @@ MonoBehaviour:
   active: 1
   mode:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   meteringMode:
     m_OverrideState: 0
     m_Value: 2
@@ -338,8 +338,8 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 1
   fixedExposure:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: -2.2859926
   compensation:
     m_OverrideState: 0
     m_Value: 0
@@ -348,7 +348,7 @@ MonoBehaviour:
     m_Value: -10
   limitMax:
     m_OverrideState: 1
-    m_Value: 11.750973
+    m_Value: -2.928015
   curveMap:
     m_OverrideState: 0
     m_Value:
@@ -556,10 +556,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f086a068d4c5889438831b3ae9afc11c, type: 3}
   m_Name: Tonemapping
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   mode:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 1
   toeStrength:
     m_OverrideState: 0
     m_Value: 0
