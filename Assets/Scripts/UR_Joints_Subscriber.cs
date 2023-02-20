@@ -9,6 +9,7 @@ namespace DDS_protocol
     {
         public List<Transform> robot = new List<Transform>();
         public Transform TCP;
+        public UR_Joints_Publisher publisher;
         private protected DataReader<DynamicData> Reader { get; private set; }
         private bool init = false;
 
@@ -57,7 +58,6 @@ namespace DDS_protocol
                     robot[3].localEulerAngles = new Vector3(0, 0, -(float)data.GetValue<double>("J4") * Mathf.Rad2Deg);
                     robot[4].localEulerAngles = new Vector3(-90, 0, -(float)data.GetValue<double>("J5") * Mathf.Rad2Deg);
                     robot[5].localEulerAngles = new Vector3(90, 0, -(float)data.GetValue<double>("J6") * Mathf.Rad2Deg);
-                    
 
                     /*
                     double[,] theta_angles = new double[1, 6];
