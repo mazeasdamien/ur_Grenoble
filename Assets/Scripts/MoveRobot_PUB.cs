@@ -3,11 +3,13 @@ using Rti.Dds.Publication;
 using Rti.Types.Dynamic;
 using UnityEngine;
 
-public class Simu_RobotFeatures : MonoBehaviour
+public class MoveRobot_PUB : MonoBehaviour
 {
     public Transform robot;
-    public float speed = 0.1f;
-    public bool light = false;
+    public float distance;
+
+    public XRPushButton right;
+    public XRPushButton left;
 
     private protected DataWriter<DynamicData> Writer { get; private set; }
     private DynamicData sample = null;
@@ -24,29 +26,30 @@ public class Simu_RobotFeatures : MonoBehaviour
             var robotTrackTopic = typeFactory.BuildStruct()
                .WithName("robotTrack")
                .AddMember(new StructMember("xValue", typeFactory.GetPrimitiveType<float>()))
-               .AddMember(new StructMember("light", typeFactory.GetPrimitiveType<bool>()))
+               .AddMember(new StructMember("distance", typeFactory.GetPrimitiveType<float>()))
                .Create();
 
             Writer = DDSHandler.SetupDataWriter("robotTrackTopic", robotTrackTopic);
             sample = new DynamicData(robotTrackTopic);
         }
 
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            if (robot.localPosition.x > -18.8)
-            {
-                robot.Translate(Vector3.left * speed * Time.deltaTime);
-            }
-        }
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            if (robot.localPosition.x < -2.4)
-            {
-                robot.Translate(Vector3.right * speed * Time.deltaTime);
-            }
-        }
         sample.SetValue("xValue", robot.localPosition.x);
-        sample.SetValue("light", light);
+        sample.SetValue("distance", distance);
         Writer.Write(sample);
+
+        if (right.IsPushed)
+        {
+            if (robot.localPosition.x <= -3)
+            {
+                robot.localPosition += new Vector3(1*Time.deltaTime, 0, 0);
+            }
+        }
+        if (left.IsPushed)
+        {
+            if (robot.localPosition.x >= -18)
+            {
+                robot.localPosition += new Vector3(-1*Time.deltaTime, 0, 0);
+            }
+        }
     }
 }
