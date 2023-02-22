@@ -18,6 +18,8 @@ public class XRPushButton : XRBaseInteractable
     private bool previouslyPushed = false;
     private float oldPushPosition;
 
+    [SerializeField] private bool isPushed;
+    public bool IsPushed { get => isPushed; }
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -51,6 +53,7 @@ public class XRPushButton : XRBaseInteractable
         oldPushPosition = 0.0f;
         previouslyPushed = false;
         SetYPosition(minimalPushDepth);
+        isPushed = false;
     }
 
     public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase updatePhase)
@@ -100,7 +103,11 @@ public class XRPushButton : XRBaseInteractable
         bool isPushedDown = transform.localPosition.y == inRange;
 
         if (isPushedDown && !previouslyPushed)
+        {
             OnPushed.Invoke();
+            isPushed = true;
+        }
+
 
         previouslyPushed = isPushedDown;
     }

@@ -8,10 +8,15 @@ using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 
-public class TeleopSiimu : MonoBehaviour
+public class SIMU_DirectTeleop_SUB : MonoBehaviour
 {
     private protected DataReader<DynamicData> Reader { get; private set; }
     private bool init = false;
+
+    public Transform target;
+    public float speed;
+    public float speedR;
+    public Transform robot;
 
     private void Update()
     {
@@ -50,36 +55,42 @@ public class TeleopSiimu : MonoBehaviour
                 DynamicData data = sample.Data;
 
                 if (data.GetValue<bool>("Rleft"))
-                { 
-                
+                {
+                    if (robot.localPosition.x <= -3)
+                    {
+                        robot.localPosition += new Vector3(speedR * Time.deltaTime, 0, 0);
+                    }
                 }
                 if (data.GetValue<bool>("Lleft"))
                 {
-
+                    if (robot.localPosition.x >= -18)
+                    {
+                        robot.localPosition += new Vector3(-speedR * Time.deltaTime, 0, 0);
+                    }
                 }
                 if (data.GetValue<bool>("Left"))
                 {
-
+                    target.localPosition += new Vector3(speed * Time.deltaTime, 0, 0);
                 }
                 if (data.GetValue<bool>("Right"))
                 {
-
+                    target.localPosition += new Vector3(-speed * Time.deltaTime, 0, 0);
                 }
                 if (data.GetValue<bool>("Forward"))
                 {
-
+                    target.localPosition += new Vector3(0,speed * Time.deltaTime, 0);
                 }
                 if (data.GetValue<bool>("Backward"))
                 {
-
+                    target.localPosition += new Vector3(0,-speed * Time.deltaTime, 0);
                 }
                 if (data.GetValue<bool>("zoomin"))
                 {
-
+                    target.localPosition += new Vector3(0, 0,speed * Time.deltaTime);
                 }
                 if (data.GetValue<bool>("zoomout"))
                 {
-
+                    target.localPosition += new Vector3(0,0, -speed * Time.deltaTime);
                 }
             }
         }
