@@ -7,6 +7,7 @@ public class MoveRobot_PUB : MonoBehaviour
 {
     public Transform robot;
     public float distance;
+    public Transform IK;
 
     public XRPushButton right;
     public XRPushButton left;
@@ -27,6 +28,9 @@ public class MoveRobot_PUB : MonoBehaviour
                .WithName("robotTrack")
                .AddMember(new StructMember("xValue", typeFactory.GetPrimitiveType<float>()))
                .AddMember(new StructMember("distance", typeFactory.GetPrimitiveType<float>()))
+               .AddMember(new StructMember("ikx", typeFactory.GetPrimitiveType<float>()))
+               .AddMember(new StructMember("iky", typeFactory.GetPrimitiveType<float>()))
+               .AddMember(new StructMember("ikz", typeFactory.GetPrimitiveType<float>()))
                .Create();
 
             Writer = DDSHandler.SetupDataWriter("robotTrackTopic", robotTrackTopic);
@@ -35,6 +39,9 @@ public class MoveRobot_PUB : MonoBehaviour
 
         sample.SetValue("xValue", robot.localPosition.x);
         sample.SetValue("distance", distance);
+        sample.SetValue("ikx", IK.localPosition.x);
+        sample.SetValue("iky", IK.localPosition.y);
+        sample.SetValue("ikz", IK.localPosition.z);
         Writer.Write(sample);
 
         if (right.IsPushed)
