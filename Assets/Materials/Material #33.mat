@@ -197,7 +197,7 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
-    - _BASE_COLOR: {r: 0.40792987, g: 0.63316095, b: 0.8396226, a: 1}
+    - _BASE_COLOR: {r: 0.5872642, g: 0.6887007, b: 0.7830189, a: 1}
     - _COAT_COLOR: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 0.7921569, g: 0.81960785, b: 0.93333334, a: 1}
     - _DoubleSidedConstants: {r: 1, g: 1, b: 1, a: 0}
