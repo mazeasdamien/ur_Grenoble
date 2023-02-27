@@ -40,8 +40,8 @@ public class inspection_cam : MonoBehaviour
                     TMP_Text distanceText = canvasInstance.GetComponentInChildren<TMP_Text>();
                     float distance = Vector3.Distance(startPosition, hit.point)*100;
                     canvasInstance.transform.position = canvasInstance.transform.position + new Vector3(0, distance/100, 0);
-                    distanceText.text = Math.Round(distance,2) + " cm";
-                    moveRobot_PUB.distance = (float)Math.Round(distance, 2);
+                    distanceText.text = Math.Round(distance,0) + " cm";
+                    moveRobot_PUB.distance = (float)Math.Round(distance, 0);
                 }
 
             }
