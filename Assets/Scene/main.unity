@@ -147,7 +147,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 42854167}
   m_LocalRotation: {x: -0.7071068, y: 0.000000030908623, z: 0.000000030908623, w: 0.7071068}
-  m_LocalPosition: {x: -7.11, y: 0.548573, z: -0.02}
+  m_LocalPosition: {x: -7, y: 0.548573, z: -0.02}
   m_LocalScale: {x: 9.9020405, y: 9.902034, z: 9.902034}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1398,7 +1398,7 @@ MeshRenderer:
   m_Materials:
   - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
   - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
-  - {fileID: 2100000, guid: 4084589d0aefb3d4c852da4b3c4c0650, type: 2}
+  - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
   - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -1951,6 +1951,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5addbdbdfd2def429ae4f0aa927e2d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  robotShadow: {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
+  baseRobot: {fileID: 2280180438313288982}
   TCP_sender: {fileID: 1908079505}
   IK_Solutions:
   - 
@@ -2012,8 +2014,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1236171360}
-  speed: 0.1
-  speedR: 1
+  speed: 0.3
+  speedR: 2
   robot: {fileID: 42854168}
 --- !u!114 &1113419608
 MonoBehaviour:
@@ -2735,7 +2737,7 @@ MeshRenderer:
   m_Materials:
   - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
   - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
-  - {fileID: 2100000, guid: 4084589d0aefb3d4c852da4b3c4c0650, type: 2}
+  - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
   - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -2819,7 +2821,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4084589d0aefb3d4c852da4b3c4c0650, type: 2}
+  - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
   - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
   - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
   - {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
@@ -3582,7 +3584,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1908079504}
   m_LocalRotation: {x: -0, y: -0.99899143, z: -0.044901025, w: 0}
-  m_LocalPosition: {x: -0.15532598, y: 0.45116693, z: 0.31493077}
+  m_LocalPosition: {x: -0.168, y: 0.486, z: 0.318}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
