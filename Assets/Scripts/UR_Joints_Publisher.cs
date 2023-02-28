@@ -66,13 +66,13 @@ namespace DDS_protocol
 
             if (TCP_sender.localPosition != tempPos || TCP_sender.localEulerAngles != tempRot)
             {
-                if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) <= 0.75f
+                if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) <= 0.8f
                     && TCP_sender.localPosition.z >= 0.191
                    && TCP_sender.localPosition.y >= 0.218)
                 {
                     robotShadow.color = Color.white;
                     Color color = robotShadow.color;
-                    color.a = 0.1f;
+                    color.a = 0.05f;
                     robotShadow.color = color;
                     sample.SetValue("J1", solutions[0, solutionID]);
                     sample.SetValue("J2", solutions[1, solutionID]);
@@ -89,7 +89,7 @@ namespace DDS_protocol
 
                     robotShadow.color = Color.red;
                     Color color = robotShadow.color;
-                    color.a = 0.1f;
+                    color.a = 0.5f;
                     robotShadow.color = color;
                 }
             }
