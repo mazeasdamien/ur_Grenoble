@@ -9,6 +9,8 @@ namespace DDS_protocol
     public class UR_Joints_Publisher : MonoBehaviour
     {
         private protected DataWriter<DynamicData> Writer { get; private set; }
+        public Material robotShadow;
+        public Transform baseRobot;
         private DynamicData sample = null;
         private bool init = false;
         public Transform TCP_sender;
@@ -64,16 +66,26 @@ namespace DDS_protocol
 
             if (TCP_sender.localPosition != tempPos || TCP_sender.localEulerAngles != tempRot)
             {
-                sample.SetValue("J1", solutions[0, solutionID]);
-                sample.SetValue("J2", solutions[1, solutionID]);
-                sample.SetValue("J3", solutions[2, solutionID]);
-                sample.SetValue("J4", solutions[3, solutionID]);
-                sample.SetValue("J5", solutions[4, solutionID]);
-                sample.SetValue("J6", solutions[5, solutionID]);
+                if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) <= 0.9f
+                    && TCP_sender.localPosition.z >= 0.191
+                   && TCP_sender.localPosition.y >= 0.218)
+                {
+                    robotShadow.color = Color.white;
+                    sample.SetValue("J1", solutions[0, solutionID]);
+                    sample.SetValue("J2", solutions[1, solutionID]);
+                    sample.SetValue("J3", solutions[2, solutionID]);
+                    sample.SetValue("J4", solutions[3, solutionID]);
+                    sample.SetValue("J5", solutions[4, solutionID]);
+                    sample.SetValue("J6", solutions[5, solutionID]);
 
-                Writer.Write(sample);
-                tempPos = TCP_sender.localPosition;
-                tempRot = TCP_sender.localEulerAngles;
+                    Writer.Write(sample);
+                    tempPos = TCP_sender.localPosition;
+                    tempRot = TCP_sender.localEulerAngles;
+                }
+                else {
+
+                    robotShadow.color = Color.red;
+                }
             }
         }
     }

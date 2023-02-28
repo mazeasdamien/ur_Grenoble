@@ -51,13 +51,13 @@ namespace DDS_protocol
                 if (sample.Info.ValidData)
                 {
                     DynamicData data = sample.Data;
-                    
-                    robot[0].localEulerAngles = new Vector3(0, 0, -(float)data.GetValue<double>("J1") * Mathf.Rad2Deg);
-                    robot[1].localEulerAngles = new Vector3(-90, 0, -(float)data.GetValue<double>("J2") * Mathf.Rad2Deg);
-                    robot[2].localEulerAngles = new Vector3(0, 0, -(float)data.GetValue<double>("J3") * Mathf.Rad2Deg);
-                    robot[3].localEulerAngles = new Vector3(0, 0, -(float)data.GetValue<double>("J4") * Mathf.Rad2Deg);
-                    robot[4].localEulerAngles = new Vector3(-90, 0, -(float)data.GetValue<double>("J5") * Mathf.Rad2Deg);
-                    robot[5].localEulerAngles = new Vector3(90, 0, -(float)data.GetValue<double>("J6") * Mathf.Rad2Deg);
+
+                        robot[0].localEulerAngles = new Vector3(0, 0, -(float)data.GetValue<double>("J1") * Mathf.Rad2Deg);
+                        robot[1].localEulerAngles = new Vector3(-90, 0, -(float)data.GetValue<double>("J2") * Mathf.Rad2Deg);
+                        robot[2].localEulerAngles = new Vector3(0, 0, -(float)data.GetValue<double>("J3") * Mathf.Rad2Deg);
+                        robot[3].localEulerAngles = new Vector3(0, 0, -(float)data.GetValue<double>("J4") * Mathf.Rad2Deg);
+                        robot[4].localEulerAngles = new Vector3(-90, 0, -(float)data.GetValue<double>("J5") * Mathf.Rad2Deg);
+                        robot[5].localEulerAngles = new Vector3(90, 0, -(float)data.GetValue<double>("J6") * Mathf.Rad2Deg);
 
                     /*
                     double[,] theta_angles = new double[1, 6];
