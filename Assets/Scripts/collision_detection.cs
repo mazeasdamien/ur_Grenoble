@@ -4,8 +4,12 @@ using UnityEngine;
 
 public class collision_detection : MonoBehaviour
 {
-    private void OnCollisionEnter(Collision collision)
+
+    private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Collision detected with " + collision.gameObject.name);
+        if (other.tag == "robotCollider")
+        {
+            Debug.Log("robot touching");
+        }
     }
 }
