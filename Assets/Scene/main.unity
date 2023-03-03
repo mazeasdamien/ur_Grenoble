@@ -2038,6 +2038,8 @@ MonoBehaviour:
   - {fileID: 1006471730}
   - {fileID: 1434910272}
   - {fileID: 1296118490}
+  limitHauteur: 0.15
+  limitProfondeur: 0.218
   solutionID: 5
 --- !u!114 &1113419604
 MonoBehaviour:
@@ -2085,7 +2087,6 @@ MonoBehaviour:
   speed: 0.2
   speedR: 1.5
   robot: {fileID: 42854168}
-  isVR: 0
 --- !u!114 &1113419608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2289,7 +2290,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1236171359}
   m_LocalRotation: {x: -0, y: -1, z: 0, w: 0}
-  m_LocalPosition: {x: 0.029, y: 0.454, z: 0.558}
+  m_LocalPosition: {x: -0.189, y: 0.226, z: 0.602}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
