@@ -19,6 +19,8 @@ namespace DDS_protocol
         private UnityEngine.Vector3 tempRot = new();
         private List<double> goodSolution = new List<double>();
         public List<Transform> robot = new List<Transform>();
+        public float limitHauteur = 0.15f;
+        public float limitProfondeur = 0.23f;
 
         public int solutionID;
 
@@ -67,7 +69,7 @@ namespace DDS_protocol
             if (TCP_sender.localPosition != tempPos || TCP_sender.localEulerAngles != tempRot)
             {
                 if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) <= 0.8f
-                    && TCP_sender.localPosition.z >= 0.191
+                    && TCP_sender.localPosition.z >= limitHauteur
                    && TCP_sender.localPosition.y >= 0.218)
                 {
                     robotShadow.color = Color.white;
