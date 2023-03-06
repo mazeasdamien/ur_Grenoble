@@ -25,9 +25,18 @@ namespace DDS_protocol
         public ToggleGroup partsDefault;
         private string getDefault;
 
-
         private void Update()
         {
+            // Get the list of active toggles in the group
+            List<Toggle> activeToggles = new List<Toggle>(partsDefault.ActiveToggles());
+
+            // If there's only one active toggle, get its name
+            if (activeToggles.Count == 1)
+            {
+                Toggle activeToggle = activeToggles[0];
+                getDefault = activeToggle.name;
+            }
+
             distanceInfo = moveRobot_PUB.distance;
         }
         public void saveImage()
@@ -35,7 +44,7 @@ namespace DDS_protocol
             switch (scenarioManager.parts)
             {
                 case scenario1_parts.p1:
-                    fileName = "p1_" + distanceInfo +"_" + getDefault + ".jpg";
+                    fileName = "p1_" + distanceInfo + "_" + getDefault + ".jpg";
                     break;
                 case scenario1_parts.p2:
                     fileName = "p2_" + distanceInfo + "_" + getDefault + ".jpg";
