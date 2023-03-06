@@ -17,6 +17,9 @@ public class ScenarioManager : MonoBehaviour
 
     public List<Toggle> toggles;
 
+    public bool isTrial;
+    public GameObject trial;
+    public GameObject engine;
 
     public GameObject takePhotoButton;
 
@@ -35,6 +38,16 @@ public class ScenarioManager : MonoBehaviour
 
     private void Update()
     {
+        if (isTrial)
+        {
+            engine.SetActive(false);
+            trial.SetActive(true); 
+        }
+        else 
+        {
+            engine.SetActive(true);
+            trial.SetActive(false);
+        }
 
         switch (parts)
         {
