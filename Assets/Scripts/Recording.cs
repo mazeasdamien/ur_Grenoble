@@ -11,6 +11,7 @@ namespace DDS_protocol
     public class Recording : MonoBehaviour
     {
         private string filePath;
+        public CollisionManager collisionManager;
         public Transform robot;
         public List<Transform> robot_joints = new List<Transform>();
         public Transform IK;
@@ -63,6 +64,7 @@ namespace DDS_protocol
                 // start of part
                 using (StreamWriter writer = new StreamWriter(filePath, true))
                 {
+                    writer.WriteLine("part1 end collisions count " + collisionManager.count);
                     writer.WriteLine("part2");
                 }
                 SM.parts = scenario1_parts.p2;
@@ -72,6 +74,7 @@ namespace DDS_protocol
                 // start of part
                 using (StreamWriter writer = new StreamWriter(filePath, true))
                 {
+                    writer.WriteLine("part2 end collisions count " + collisionManager.count);
                     writer.WriteLine("part3");
                 }
                 SM.parts = scenario1_parts.p3;
@@ -81,12 +84,17 @@ namespace DDS_protocol
                 // start of part
                 using (StreamWriter writer = new StreamWriter(filePath, true))
                 {
+                    writer.WriteLine("part3 end collisions count " + collisionManager.count);
                     writer.WriteLine("part4");
                 }
                 SM.parts = scenario1_parts.p4;
             }
             else if (SM.parts == scenario1_parts.p4)
             {
+                using (StreamWriter writer = new StreamWriter(filePath, true))
+                {
+                    writer.WriteLine("part4 end collisions count " + collisionManager.count);
+                }
                 isRunning = false;
                 CancelInvoke("RecordPosition");
                 time = 0;
