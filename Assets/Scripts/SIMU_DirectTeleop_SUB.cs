@@ -18,6 +18,8 @@ public class SIMU_DirectTeleop_SUB : MonoBehaviour
     public float speedR;
     public Transform robot;
 
+    public bool isVR;
+
     private void Update()
     {
         if (!init)
@@ -39,6 +41,7 @@ public class SIMU_DirectTeleop_SUB : MonoBehaviour
                 .AddMember(new StructMember("t2", typeFactory.GetPrimitiveType<bool>()))
                 .AddMember(new StructMember("t3", typeFactory.GetPrimitiveType<bool>()))
                 .AddMember(new StructMember("t4", typeFactory.GetPrimitiveType<bool>()))
+                .AddMember(new StructMember("isVR", typeFactory.GetPrimitiveType<bool>()))
                 .Create();
 
             Reader = DDSHandler.SetupDataReader("DirectTeleopTopic", Teleop);
@@ -98,20 +101,21 @@ public class SIMU_DirectTeleop_SUB : MonoBehaviour
                 }
                 if (data.GetValue<bool>("Forward"))
                 {
-                    target.localPosition += new Vector3(0,speed * Time.deltaTime, 0);
+                    target.localPosition += new Vector3(0, speed * Time.deltaTime, 0);
                 }
                 if (data.GetValue<bool>("Backward"))
                 {
-                    target.localPosition += new Vector3(0,-speed * Time.deltaTime, 0);
+                    target.localPosition += new Vector3(0, -speed * Time.deltaTime, 0);
                 }
                 if (data.GetValue<bool>("zoomin"))
                 {
-                    target.localPosition += new Vector3(0, 0,speed * Time.deltaTime);
+                    target.localPosition += new Vector3(0, 0, speed * Time.deltaTime);
                 }
                 if (data.GetValue<bool>("zoomout"))
                 {
-                    target.localPosition += new Vector3(0,0, -speed * Time.deltaTime);
+                    target.localPosition += new Vector3(0, 0, -speed * Time.deltaTime);
                 }
+                isVR = data.GetValue<bool>("isVR");
             }
         }
     }

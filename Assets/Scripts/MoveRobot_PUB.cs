@@ -8,6 +8,8 @@ public class MoveRobot_PUB : MonoBehaviour
     public Transform robot;
     public float distance;
     public Transform IK;
+    public UR_Joints_Publisher uR_Joints_Publisher;
+    public CollisionManager collisionManager;
 
     public XRPushButton right;
     public XRPushButton left;
@@ -31,6 +33,8 @@ public class MoveRobot_PUB : MonoBehaviour
                .AddMember(new StructMember("ikx", typeFactory.GetPrimitiveType<float>()))
                .AddMember(new StructMember("iky", typeFactory.GetPrimitiveType<float>()))
                .AddMember(new StructMember("ikz", typeFactory.GetPrimitiveType<float>()))
+               .AddMember(new StructMember("color", typeFactory.GetPrimitiveType<int>()))
+               .AddMember(new StructMember("collisionNumbers", typeFactory.GetPrimitiveType<int>()))
                .Create();
 
             Writer = DDSHandler.SetupDataWriter("robotTrackTopic", robotTrackTopic);
@@ -42,6 +46,8 @@ public class MoveRobot_PUB : MonoBehaviour
         sample.SetValue("ikx", IK.localPosition.x);
         sample.SetValue("iky", IK.localPosition.y);
         sample.SetValue("ikz", IK.localPosition.z);
+        sample.SetValue("color", uR_Joints_Publisher.robotstate);
+        sample.SetValue("collisionNumbers", collisionManager.count);
         Writer.Write(sample);
 
         if (right.IsPushed)

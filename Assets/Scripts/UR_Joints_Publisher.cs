@@ -21,6 +21,7 @@ namespace DDS_protocol
         public List<Transform> robot = new List<Transform>();
         public float limitHauteur = 0.15f;
         public float limitProfondeur = 0.23f;
+        public int robotstate;
 
         public int solutionID;
 
@@ -68,14 +69,12 @@ namespace DDS_protocol
 
             if (TCP_sender.localPosition != tempPos || TCP_sender.localEulerAngles != tempRot)
             {
+
                 if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) <= 0.8f
                     && TCP_sender.localPosition.z >= limitHauteur
                    && TCP_sender.localPosition.y >= 0.218)
                 {
-                    robotShadow.color = Color.white;
-                    Color color = robotShadow.color;
-                    color.a = 0.05f;
-                    robotShadow.color = color;
+
                     sample.SetValue("J1", solutions[0, solutionID]);
                     sample.SetValue("J2", solutions[1, solutionID]);
                     sample.SetValue("J3", solutions[2, solutionID]);
@@ -87,13 +86,33 @@ namespace DDS_protocol
                     tempPos = TCP_sender.localPosition;
                     tempRot = TCP_sender.localEulerAngles;
                 }
-                else {
+
+                if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) <= 0.75f)
+                {
+                    robotShadow.color = Color.white;
+                    Color color = robotShadow.color;
+                    color.a = 0.05f;
+                    robotShadow.color = color;
+                    robotstate = 1;
+                }
+                else if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) >= 0.8f)
+                {
 
                     robotShadow.color = Color.red;
                     Color color = robotShadow.color;
                     color.a = 0.5f;
                     robotShadow.color = color;
+                    robotstate = 3;
                 }
+                else
+                {
+                    robotShadow.color = Color.yellow;
+                    Color color = robotShadow.color;
+                    color.a = 0.5f;
+                    robotShadow.color = color;
+                    robotstate = 2;
+                }
+
             }
         }
     }
