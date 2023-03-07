@@ -72,7 +72,7 @@ namespace DDS_protocol
 
                 if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) <= 0.8f
                     && TCP_sender.localPosition.z >= limitHauteur
-                   && TCP_sender.localPosition.y >= 0.218)
+                   && TCP_sender.localPosition.y >= limitProfondeur)
                 {
 
                     sample.SetValue("J1", solutions[0, solutionID]);
