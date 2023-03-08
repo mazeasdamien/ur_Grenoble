@@ -109,16 +109,16 @@ namespace DDS_protocol
             {
                 writer.WriteLine(
                     Math.Round(time, 2)
-                    + "," + Math.Round(robot.localPosition.x, 2)
-                    + "," + Math.Round(IK.localPosition.x, 2)
-                    + "," + Math.Round(IK.localPosition.y, 2)
-                    + "," + Math.Round(IK.localPosition.z, 2)
-                    + "," + Math.Round(-robot_joints[0].localEulerAngles.z, 2)
-                    + "," + Math.Round(-robot_joints[1].localEulerAngles.z * Mathf.Rad2Deg, 2)
-                    + "," + Math.Round(-robot_joints[2].localEulerAngles.z * Mathf.Rad2Deg, 2)
-                    + "," + Math.Round(-robot_joints[3].localEulerAngles.z * Mathf.Rad2Deg, 2)
-                    + "," + Math.Round(-robot_joints[4].localEulerAngles.z * Mathf.Rad2Deg, 2)
-                    + "," + Math.Round(-robot_joints[5].localEulerAngles.z * Mathf.Rad2Deg, 2));
+                    + ";" + Math.Round(robot.localPosition.x, 2)
+                    + ";" + Math.Round(IK.localPosition.x, 2)
+                    + ";" + Math.Round(IK.localPosition.y, 2)
+                    + ";" + Math.Round(IK.localPosition.z, 2)
+                    + ";" + Math.Round(-robot_joints[0].localEulerAngles.z, 2)
+                    + ";" + Math.Round(-robot_joints[1].localEulerAngles.z * Mathf.Rad2Deg, 2)
+                    + ";" + Math.Round(-robot_joints[2].localEulerAngles.z * Mathf.Rad2Deg, 2)
+                    + ";" + Math.Round(-robot_joints[3].localEulerAngles.z * Mathf.Rad2Deg, 2)
+                    + ";" + Math.Round(-robot_joints[4].localEulerAngles.z * Mathf.Rad2Deg, 2)
+                    + ";" + Math.Round(-robot_joints[5].localEulerAngles.z * Mathf.Rad2Deg, 2));
             }
         }
     }

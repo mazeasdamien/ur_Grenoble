@@ -14,6 +14,7 @@ namespace DDS_protocol
         private DynamicData sample = null;
         private bool init = false;
         public Transform TCP_sender;
+        public Transform forDistance;
         public List<string> IK_Solutions = new List<string>();
         private UnityEngine.Vector3 tempPos = new();
         private UnityEngine.Vector3 tempRot = new();
@@ -70,7 +71,7 @@ namespace DDS_protocol
             if (TCP_sender.localPosition != tempPos || TCP_sender.localEulerAngles != tempRot)
             {
 
-                if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) <= 0.8f
+                if (UnityEngine.Vector3.Distance(baseRobot.localPosition, forDistance.localPosition) <= 0.8f
                     && TCP_sender.localPosition.z >= limitHauteur
                    && TCP_sender.localPosition.y >= limitProfondeur)
                 {
@@ -87,7 +88,7 @@ namespace DDS_protocol
                     tempRot = TCP_sender.localEulerAngles;
                 }
 
-                if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) <= 0.75f)
+                if (UnityEngine.Vector3.Distance(baseRobot.localPosition, forDistance.localPosition) <= 0.75f)
                 {
                     robotShadow.color = Color.white;
                     Color color = robotShadow.color;
@@ -95,7 +96,7 @@ namespace DDS_protocol
                     robotShadow.color = color;
                     robotstate = 1;
                 }
-                else if (UnityEngine.Vector3.Distance(baseRobot.localPosition, TCP_sender.localPosition) >= 0.8f)
+                else if (UnityEngine.Vector3.Distance(baseRobot.localPosition, forDistance.localPosition) >= 0.8f)
                 {
 
                     robotShadow.color = Color.red;
