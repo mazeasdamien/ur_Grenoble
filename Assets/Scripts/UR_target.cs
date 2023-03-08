@@ -13,15 +13,25 @@ namespace DDS_protocol
         public UR_Joints_Publisher UR_Joints_Publisher;
         public float speed = 0.1f;
         public float speedr = 0.01f;
+        public UR_Joints_Publisher uR_Joints_Publisher;
 
         private List<string> IK_Solutions = new List<string>();
         public List<double> goodSolution = new List<double>();
 
         void Update()
         {
-            float step = speed * Time.deltaTime;
+            if (uR_Joints_Publisher.robotstate == 1 || uR_Joints_Publisher.robotstate == 2)
+            {
+                float step = speed * Time.deltaTime;
                 ik.position = Vector3.MoveTowards(ik.position, target.position, step);
                 ik.rotation = Quaternion.Lerp(ik.rotation, target.rotation, speedr);
+            }
+            else 
+            {
+                float step = 0;
+                ik.position = Vector3.MoveTowards(ik.position, target.position, step);
+                ik.rotation = Quaternion.Lerp(ik.rotation, target.rotation, speedr);
+            }
 
 
             Matrix4x4 transform_matrix = UR_motion_toolkit.GetTransformMatrix(ik);

@@ -2197,7 +2197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   collisionManager: {fileID: 1113419609}
-  robot: {fileID: 2280180438313288982}
+  robot: {fileID: 42854168}
   robot_joints:
   - {fileID: 2254092555879293176}
   - {fileID: 1409562778566214156}
@@ -2206,7 +2206,7 @@ MonoBehaviour:
   - {fileID: 6133798238636326205}
   - {fileID: 4136418588237221133}
   IK: {fileID: 1908079505}
-  id: 00
+  id: 11
   folderPath: 
   SM: {fileID: 299249981}
 --- !u!114 &299249984
@@ -4704,6 +4704,7 @@ MonoBehaviour:
   robotShadow: {fileID: 2100000, guid: 29469b69dd7700845a0d288828f6372c, type: 2}
   baseRobot: {fileID: 2280180438313288982}
   TCP_sender: {fileID: 1908079505}
+  forDistance: {fileID: 1236171360}
   IK_Solutions:
   - 
   - 
@@ -4743,6 +4744,7 @@ MonoBehaviour:
   UR_Joints_Publisher: {fileID: 1113419595}
   speed: 0.1
   speedr: 0.04
+  uR_Joints_Publisher: {fileID: 1113419595}
   goodSolution: []
 --- !u!114 &1113419606
 MonoBehaviour:
@@ -5450,7 +5452,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1236171359}
   m_LocalRotation: {x: -0, y: -1, z: 0, w: 0}
-  m_LocalPosition: {x: -0.189, y: 0.226, z: 0.602}
+  m_LocalPosition: {x: -0.176, y: 0.354, z: 0.548}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
