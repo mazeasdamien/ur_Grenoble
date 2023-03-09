@@ -87,33 +87,31 @@ namespace DDS_protocol
                     tempPos = TCP_sender.localPosition;
                     tempRot = TCP_sender.localEulerAngles;
                 }
+            }
+            if (UnityEngine.Vector3.Distance(baseRobot.localPosition, forDistance.localPosition) <= 0.78f && forDistance.localPosition.y >= limitProfondeur + 0.02 && forDistance.localPosition.z >= limitHauteur + 0.02)
+            {
+                robotShadow.color = Color.white;
+                Color color = robotShadow.color;
+                color.a = 0.05f;
+                robotShadow.color = color;
+                robotstate = 1;
+            }
+            else if (UnityEngine.Vector3.Distance(baseRobot.localPosition, forDistance.localPosition) >= 0.8f || forDistance.localPosition.y <= limitProfondeur || forDistance.localPosition.z <= limitHauteur)
+            {
 
-                if (UnityEngine.Vector3.Distance(baseRobot.localPosition, forDistance.localPosition) <= 0.75f)
-                {
-                    robotShadow.color = Color.white;
-                    Color color = robotShadow.color;
-                    color.a = 0.05f;
-                    robotShadow.color = color;
-                    robotstate = 1;
-                }
-                else if (UnityEngine.Vector3.Distance(baseRobot.localPosition, forDistance.localPosition) >= 0.8f)
-                {
-
-                    robotShadow.color = Color.red;
-                    Color color = robotShadow.color;
-                    color.a = 0.5f;
-                    robotShadow.color = color;
-                    robotstate = 3;
-                }
-                else
-                {
-                    robotShadow.color = Color.yellow;
-                    Color color = robotShadow.color;
-                    color.a = 0.5f;
-                    robotShadow.color = color;
-                    robotstate = 2;
-                }
-
+                robotShadow.color = Color.red;
+                Color color = robotShadow.color;
+                color.a = 0.5f;
+                robotShadow.color = color;
+                robotstate = 3;
+            }
+            else
+            {
+                robotShadow.color = Color.yellow;
+                Color color = robotShadow.color;
+                color.a = 0.5f;
+                robotShadow.color = color;
+                robotstate = 2;
             }
         }
     }
