@@ -73,6 +73,12 @@ public class AgentServer : AgentLink
 
         // First-person camera: same lighting/HDRP settings as the participant's head camera.
         var head = Camera.main;
+        if (head != null)
+        {
+            headPos0 = head.transform.position;
+            headFwd0 = head.transform.forward;
+            floorY = head.transform.root.position.y;
+        }
         var go = new GameObject("AgentEye");
         eye = go.AddComponent<Camera>();
         if (head != null)
@@ -104,29 +110,50 @@ public class AgentServer : AgentLink
     Transform Target => urTarget != null ? urTarget.target : teleop.target;
     Transform Rail => teleop.robot;
 
-    // Placeholder viewpoints around the participant's start position; refined once checked on renders.
+    // Five standing viewpoints of the immersive condition (simplification of the free walk in the
+    // 4 x 4 m area of 2023), placed around the green part of the current step, eye height 1.65 m:
+    //   1 robot side, left of the part     2 robot side, right of the part
+    //   3 opposite side, across the engine 4 nearest end of the engine
+    //   5 leaning over the part from the robot side
+    // Scene (world, metres): engine x -0.75..1.26, z -1.64..-0.19, top ~1.34; robot base z -0.07,
+    // rail along x; floor y 0; the 2023 head start (0, 1.6, 0) is right behind the robot.
+    const float EyeY = 1.65f;
     void BuildViewpoints(Camera head)
     {
-        Vector3 p = head != null ? head.transform.position : Vector3.zero;
-        if (head != null && head.transform.localPosition.y < 0.5f) p += Vector3.up * 1.6f; // no HMD: add standing eye height
-        Vector3 fwd = head != null ? Vector3.ProjectOnPlane(head.transform.forward, Vector3.up).normalized : Vector3.forward;
-        if (fwd.sqrMagnitude < 1e-6f) fwd = Vector3.forward;
-        Vector3 right = Vector3.Cross(Vector3.up, fwd);
         viewpoints.Clear();
-        viewpoints.Add(new Pose(p, Quaternion.LookRotation(fwd)));
-        viewpoints.Add(new Pose(p - right * 0.8f, Quaternion.LookRotation(fwd)));
-        viewpoints.Add(new Pose(p + right * 0.8f, Quaternion.LookRotation(fwd)));
-        viewpoints.Add(new Pose(p + fwd * 0.6f, Quaternion.LookRotation(fwd)));
-        viewpoints.Add(new Pose(p + Vector3.up * 0.5f, Quaternion.LookRotation(fwd - Vector3.up * 0.6f)));
+        Vector3 c = EngineCenter();
+        Vector3 p = ActivePart() != null ? ActivePart().position : new Vector3(c.x, 1.1f, -0.65f);
+        viewpoints.Add(new Pose(new Vector3(p.x - 0.9f, EyeY, 0.45f), Quaternion.identity));
+        viewpoints.Add(new Pose(new Vector3(p.x + 0.9f, EyeY, 0.45f), Quaternion.identity));
+        viewpoints.Add(new Pose(new Vector3(p.x, EyeY + 0.1f, -2.35f), Quaternion.identity));
+        // right end: the floating VR panel hangs above it, so stand 0.6 m towards the far side
+        viewpoints.Add(new Pose(p.x < c.x ? new Vector3(-1.55f, EyeY, p.z) : new Vector3(2.05f, EyeY, p.z - 0.6f), Quaternion.identity));
+        viewpoints.Add(new Pose(new Vector3(p.x, 1.9f, p.z + 0.75f), Quaternion.identity));
+    }
+
+    Vector3 engineCenter;
+    bool engineCenterKnown;
+    Vector3 EngineCenter()
+    {
+        if (engineCenterKnown) return engineCenter;
+        engineCenter = new Vector3(0.2555f, 0.6395f, -0.9139f);
+        if (sm != null && sm.engine != null)
+        {
+            var rs = sm.engine.GetComponentsInChildren<Renderer>();
+            if (rs.Length > 0) { var bb = rs[0].bounds; foreach (var x in rs) bb.Encapsulate(x.bounds); engineCenter = bb.center; }
+        }
+        engineCenterKnown = true;
+        return engineCenter;
     }
 
     void ApplyViewpoint(int n)
     {
         currentViewpoint = n;
+        BuildViewpoints(null); // follows the green part of the current step
         var vp = viewpoints[n - 1];
-        eye.transform.SetPositionAndRotation(vp.position, vp.rotation);
+        eye.transform.position = vp.position;
         var part = ActivePart();
-        if (part != null) eye.transform.LookAt(part.position); // the participant looks at the green part
+        eye.transform.LookAt(part != null ? part.position : EngineCenter()); // the participant looks at the green part
     }
 
     Transform ActivePart()
@@ -170,6 +197,9 @@ public class AgentServer : AgentLink
         {
             case "ping":
                 reply["instance"] = "ur_Grenoble";
+                break;
+            case "info":
+                FillInfo(reply);
                 break;
             case "state":
                 FillState(reply);
@@ -283,6 +313,38 @@ public class AgentServer : AgentLink
         var e = new Vector3(Mathf.Clamp(r.dpitch, -45, 45), Mathf.Clamp(r.dyaw, -45, 45), Mathf.Clamp(r.droll, -45, 45));
         Target.localPosition += d;
         Target.localRotation = Target.localRotation * Quaternion.Euler(e);
+    }
+
+    Vector3 headPos0, headFwd0;
+    float floorY;
+
+    // Scene geometry for placing the viewpoints (world coordinates).
+    void FillInfo(Reply r)
+    {
+        r["head_start_position"] = V3(headPos0);
+        r["head_start_forward"] = V3(headFwd0);
+        r["floor_y"] = R(floorY);
+        if (sm != null)
+        {
+            var parts = new List<object>();
+            foreach (var go in new[] { sm.s1p1, sm.s1p2, sm.s1p3, sm.s1p4 }) parts.Add(go != null ? V3(go.transform.position) : null);
+            r["parts"] = parts;
+            if (sm.engine != null)
+            {
+                var rs = sm.engine.GetComponentsInChildren<Renderer>();
+                if (rs.Length > 0)
+                {
+                    var b = rs[0].bounds;
+                    foreach (var x in rs) b.Encapsulate(x.bounds);
+                    r["engine_center"] = V3(b.center);
+                    r["engine_size"] = V3(b.size);
+                }
+            }
+        }
+        r["robot_base"] = V3(Rail.position);
+        r["rail_axis"] = V3(Rail.parent != null ? Rail.parent.TransformDirection(Vector3.right).normalized : Vector3.right);
+        r["target_world"] = V3(Target.position);
+        r["viewpoints"] = viewpoints.Select(v => (object)new Dictionary<string, object> { ["position"] = V3(v.position), ["forward"] = V3(v.rotation * Vector3.forward) }).ToList();
     }
 
     void FillState(Reply r)
