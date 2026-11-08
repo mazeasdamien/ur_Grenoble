@@ -15,7 +15,7 @@ namespace Plawius.NonConvexCollider
 
         [SerializeField] private List<MeshCollider> m_colliders = new List<MeshCollider>();
         [SerializeField] private bool m_isTrigger = false;
-        [SerializeField] private PhysicMaterial m_material = null;
+        [SerializeField] private PhysicsMaterial m_material = null;
         private bool m_isDirty = true;
 
         #if UNITY_EDITOR
@@ -42,7 +42,7 @@ namespace Plawius.NonConvexCollider
                 }
             }
         }
-        public PhysicMaterial Material
+        public PhysicsMaterial Material
         {
             get { return m_material; }
             set

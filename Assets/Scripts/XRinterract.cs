@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace UnityEngine.XR.Interaction.Toolkit
 {
-    public class XRinterract : XRGrabInteractable
+    public class XRinterract : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable
     {
-        private IXRInteractable interactable;
+        private UnityEngine.XR.Interaction.Toolkit.Interactables.IXRInteractable interactable;
         public GameObject parent;
         protected override void OnSelectEntering(SelectEnterEventArgs args)
         {
@@ -15,7 +15,7 @@ namespace UnityEngine.XR.Interaction.Toolkit
 
             var obj = args.interactableObject;
             obj.transform.parent = parent.transform;
-            if (args.interactorObject is XRDirectInteractor || args.interactorObject is XRRayInteractor)
+            if (args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor || args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor)
             {
                 Transform attachController = args.interactorObject.GetAttachTransform(interactable);
                 SetAttachTransform(attachController);
@@ -30,7 +30,7 @@ namespace UnityEngine.XR.Interaction.Toolkit
         protected override void OnSelectExiting(SelectExitEventArgs args)
         {
             base.OnSelectExiting(args);
-            if (args.interactorObject is XRDirectInteractor || args.interactorObject is XRRayInteractor)
+            if (args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor || args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor)
             {
                 XRBaseController xRController = args.interactorObject.transform.GetComponent<XRBaseController>();
                 HapticFeedback(xRController, 0.5f, 0.15f);

@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 
 [RequireComponent(typeof(BoxCollider))]
-public class XRPushButton : XRBaseInteractable
+public class XRPushButton : UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable
 {
 
     public UnityEvent OnPushed;
@@ -14,7 +14,7 @@ public class XRPushButton : XRBaseInteractable
     [SerializeField] private float minimalPushDepth;
     [SerializeField] private float maximumPushDepth;
 
-    private XRBaseInteractor pushInteractor = null;
+    private UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor pushInteractor = null;
     private bool previouslyPushed = false;
     private float oldPushPosition;
 
@@ -43,8 +43,8 @@ public class XRPushButton : XRBaseInteractable
 
     private void StartPush(HoverEnterEventArgs arg0)
     {
-        pushInteractor = arg0.interactor;
-        oldPushPosition = GetLocalYPosition(arg0.interactor.transform.position);
+        pushInteractor = arg0.interactorObject as UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor;
+        oldPushPosition = GetLocalYPosition(arg0.interactorObject.transform.position);
     }
 
     private void EndPush(HoverExitEventArgs arg0)

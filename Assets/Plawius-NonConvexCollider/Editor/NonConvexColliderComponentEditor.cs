@@ -275,7 +275,7 @@ namespace Plawius.NonConvexCollider.Editor
                 EditorGUILayout.Space();
 
                 m_isTrigger.boolValue = EditorGUILayout.Toggle("Is Trigger", m_isTrigger.boolValue);
-                m_material.objectReferenceValue = EditorGUILayout.ObjectField("Material", m_material.objectReferenceValue, typeof(PhysicMaterial), false);
+                m_material.objectReferenceValue = EditorGUILayout.ObjectField("Material", m_material.objectReferenceValue, typeof(PhysicsMaterial), false);
                 
                 if (EditorGUI.EndChangeCheck())
                 {
