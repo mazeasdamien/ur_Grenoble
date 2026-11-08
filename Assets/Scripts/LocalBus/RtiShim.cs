@@ -173,46 +173,70 @@ namespace Rti.Dds.Publication
 {
     using Rti.Types.Dynamic;
 
+    /// Write() only serializes and queues the sample; a background thread connects and sends,
+    /// so a topic nobody listens to never stalls the Unity main thread.
     public class DataWriter<T> where T : DynamicData
     {
+        private const int MaxQueue = 8; // keep the most recent samples only
         private readonly string topic;
         private readonly int port;
-        private TcpClient client;
-        private NetworkStream stream;
-        private DateTime nextTry = DateTime.MinValue;
+        private readonly ConcurrentQueue<byte[]> pending = new ConcurrentQueue<byte[]>();
+        private readonly AutoResetEvent signal = new AutoResetEvent(false);
 
-        public DataWriter(string topic) { this.topic = topic; port = LocalBus.PortFor(topic); }
+        public DataWriter(string topic)
+        {
+            this.topic = topic;
+            port = LocalBus.PortFor(topic);
+            var t = new Thread(SendLoop) { IsBackground = true, Name = "LocalBus writer " + topic };
+            t.Start();
+        }
 
         public void Write(T sample)
         {
-            if (stream == null)
+            pending.Enqueue(sample.Serialize());
+            while (pending.Count > MaxQueue && pending.TryDequeue(out _)) { }
+            signal.Set();
+        }
+
+        private void SendLoop()
+        {
+            TcpClient client = null;
+            NetworkStream stream = null;
+            while (!LocalBus.Stopping)
             {
-                if (DateTime.UtcNow < nextTry) return;
+                signal.WaitOne(500);
+                if (pending.IsEmpty) continue;
+                if (stream == null)
+                {
+                    try
+                    {
+                        client = new TcpClient { NoDelay = true };
+                        client.Connect(IPAddress.Loopback, port);
+                        stream = client.GetStream();
+                    }
+                    catch (Exception)
+                    {
+                        client?.Close(); client = null; stream = null;
+                        while (pending.TryDequeue(out _)) { } // nobody reads this topic yet: drop
+                        Thread.Sleep(1000);
+                        continue;
+                    }
+                }
                 try
                 {
-                    client = new TcpClient { NoDelay = true };
-                    client.Connect(IPAddress.Loopback, port);
-                    stream = client.GetStream();
+                    while (pending.TryDequeue(out var payload))
+                    {
+                        var header = BitConverter.GetBytes(payload.Length);
+                        stream.Write(header, 0, 4);
+                        stream.Write(payload, 0, payload.Length);
+                    }
                 }
-                catch (SocketException)
+                catch (Exception)
                 {
                     client?.Close(); client = null; stream = null;
-                    nextTry = DateTime.UtcNow.AddSeconds(1); // nobody reads this topic yet
-                    return;
                 }
             }
-            try
-            {
-                var payload = sample.Serialize();
-                var header = BitConverter.GetBytes(payload.Length);
-                stream.Write(header, 0, 4);
-                stream.Write(payload, 0, payload.Length);
-            }
-            catch (Exception)
-            {
-                client?.Close(); client = null; stream = null;
-                nextTry = DateTime.UtcNow.AddSeconds(1);
-            }
+            client?.Close();
         }
 
         public override string ToString() => "LocalBus writer " + topic + " :" + port;
@@ -293,6 +317,8 @@ namespace Rti.Dds
         private static readonly Dictionary<string, ConcurrentQueue<byte[]>> queues = new Dictionary<string, ConcurrentQueue<byte[]>>();
         private static readonly List<TcpListener> listeners = new List<TcpListener>();
 
+        public static volatile bool Stopping;
+
         public static int PortFor(string topic)
         {
             uint h = 2166136261;
@@ -363,6 +389,7 @@ namespace Rti.Dds
 
         public static void Shutdown()
         {
+            Stopping = true;
             lock (queues)
             {
                 foreach (var l in listeners) { try { l.Stop(); } catch (Exception) { } }
