@@ -156,6 +156,21 @@ public class AgentServer : AgentLink
         eye.transform.LookAt(part != null ? part.position : EngineCenter()); // the participant looks at the green part
     }
 
+    // First-person render for the agent. The floating panels of the VR interface (instructions,
+    // step, labels, camera feed, distance label) are hidden: they occlude the robot and the part
+    // from several viewpoints, and their content reaches the agent as text. value "ui" keeps them
+    // (figures of what the human participants saw).
+    IEnumerator EyeRender(AgentRequest req, Reply reply)
+    {
+        var hidden = new List<Canvas>();
+        if (req.value != "ui")
+            foreach (var c in FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+                if (c.enabled && c.renderMode == RenderMode.WorldSpace) { c.enabled = false; hidden.Add(c); }
+        reply["ui_hidden"] = hidden.Count;
+        yield return RenderCamera(eye, req.w > 0 ? req.w : 1280, req.h > 0 ? req.h : 720, reply);
+        foreach (var c in hidden) if (c != null) c.enabled = true;
+    }
+
     Transform ActivePart()
     {
         if (sm == null) return null;
@@ -232,15 +247,15 @@ public class AgentServer : AgentLink
             case "viewpoint":
                 if (req.n < 1 || req.n > viewpoints.Count) { reply.Fail($"n must be 1..{viewpoints.Count}"); break; }
                 ApplyViewpoint(req.n);
-                yield return RenderCamera(eye, req.w > 0 ? req.w : 1280, req.h > 0 ? req.h : 720, reply);
+                yield return EyeRender(req, reply);
                 break;
             case "eye":
                 eye.transform.position = new Vector3(req.x, req.y, req.z);
                 eye.transform.LookAt(new Vector3(req.lx, req.ly, req.lz));
-                yield return RenderCamera(eye, req.w > 0 ? req.w : 1280, req.h > 0 ? req.h : 720, reply);
+                yield return EyeRender(req, reply);
                 break;
             case "view":
-                yield return RenderCamera(eye, req.w > 0 ? req.w : 1280, req.h > 0 ? req.h : 720, reply);
+                yield return EyeRender(req, reply);
                 break;
             case "reset":
                 Target.localPosition = targetPos0; Target.localRotation = targetRot0;
