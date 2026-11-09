@@ -48,7 +48,27 @@ public class SIMU_DirectTeleop_SUB : MonoBehaviour
         }
 
         ProcessData(Reader);
+        ApplyHeldButtons();
     }
+
+    // 2026: frame-rate-independent teleoperation. In 2023 every received sample moved the target by
+    // speed * Time.deltaTime of THIS instance, so the real speed was speed x (2D interface fps /
+    // twin fps); the 2023 pilot logs show the rail at ~0.7 unit/s instead of 1.5. Samples now only
+    // update the held-button state, and the motion is applied once per frame here.
+    // Effective speeds = speed and speedR x Scale (command line: -teleopscale <factor>, default 1).
+    public static float Scale = ReadScale();
+    static float ReadScale()
+    {
+        var args = System.Environment.GetCommandLineArgs();
+        int i = System.Array.IndexOf(args, "-teleopscale");
+        return i >= 0 && i + 1 < args.Length && float.TryParse(args[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float v) ? v : 1f;
+    }
+
+    readonly Dictionary<string, bool> held = new Dictionary<string, bool>();
+    float lastSampleTime = -1f;
+    static readonly string[] ButtonNames = { "Rleft", "Lleft", "Left", "Right", "Forward", "Backward", "zoomin", "zoomout", "t1", "t2", "t3", "t4" };
+
+    bool Held(string name) => held.TryGetValue(name, out bool b) && b;
 
     void ProcessData(AnyDataReader anyReader)
     {
@@ -60,63 +80,31 @@ public class SIMU_DirectTeleop_SUB : MonoBehaviour
             if (sample.Info.ValidData)
             {
                 DynamicData data = sample.Data;
-
-                if (data.GetValue<bool>("Rleft"))
-                {
-                    if (robot.localPosition.x <= -3)
-                    {
-                        robot.localPosition += new Vector3(speedR * Time.deltaTime, 0, 0);
-                    }
-                }
-                if (data.GetValue<bool>("Lleft"))
-                {
-                    if (robot.localPosition.x >= -18)
-                    {
-                        robot.localPosition += new Vector3(-speedR * Time.deltaTime, 0, 0);
-                    }
-                }
-                if (data.GetValue<bool>("Left"))
-                {
-                    target.localPosition += new Vector3(speed * Time.deltaTime, 0, 0);
-                }
-                if (data.GetValue<bool>("Right"))
-                {
-                    target.localPosition += new Vector3(-speed * Time.deltaTime, 0, 0);
-                }
-                if (data.GetValue<bool>("t1"))
-                {
-                    target.localPosition += new Vector3(speed * Time.deltaTime, speed * Time.deltaTime, 0);
-                }
-                if (data.GetValue<bool>("t2"))
-                {
-                    target.localPosition += new Vector3(-speed * Time.deltaTime, speed * Time.deltaTime, 0);
-                }
-                if (data.GetValue<bool>("t3"))
-                {
-                    target.localPosition += new Vector3(speed * Time.deltaTime, -speed * Time.deltaTime, 0);
-                }
-                if (data.GetValue<bool>("t4"))
-                {
-                    target.localPosition += new Vector3(-speed * Time.deltaTime, -speed * Time.deltaTime, 0);
-                }
-                if (data.GetValue<bool>("Forward"))
-                {
-                    target.localPosition += new Vector3(0, speed * Time.deltaTime, 0);
-                }
-                if (data.GetValue<bool>("Backward"))
-                {
-                    target.localPosition += new Vector3(0, -speed * Time.deltaTime, 0);
-                }
-                if (data.GetValue<bool>("zoomin"))
-                {
-                    target.localPosition += new Vector3(0, 0, speed * Time.deltaTime);
-                }
-                if (data.GetValue<bool>("zoomout"))
-                {
-                    target.localPosition += new Vector3(0, 0, -speed * Time.deltaTime);
-                }
+                foreach (var n in ButtonNames) held[n] = data.GetValue<bool>(n);
                 isVR = data.GetValue<bool>("isVR");
+                lastSampleTime = Time.unscaledTime;
             }
         }
+    }
+
+    void ApplyHeldButtons()
+    {
+        // release everything if the 2D interface stops sending (closed or frozen)
+        if (lastSampleTime < 0 || Time.unscaledTime - lastSampleTime > 0.25f) return;
+        float s = speed * Scale * Time.deltaTime;
+        float sr = speedR * Scale * Time.deltaTime;
+
+        if (Held("Rleft") && robot.localPosition.x <= -3) robot.localPosition += new Vector3(sr, 0, 0);
+        if (Held("Lleft") && robot.localPosition.x >= -18) robot.localPosition += new Vector3(-sr, 0, 0);
+        if (Held("Left")) target.localPosition += new Vector3(s, 0, 0);
+        if (Held("Right")) target.localPosition += new Vector3(-s, 0, 0);
+        if (Held("t1")) target.localPosition += new Vector3(s, s, 0);
+        if (Held("t2")) target.localPosition += new Vector3(-s, s, 0);
+        if (Held("t3")) target.localPosition += new Vector3(s, -s, 0);
+        if (Held("t4")) target.localPosition += new Vector3(-s, -s, 0);
+        if (Held("Forward")) target.localPosition += new Vector3(0, s, 0);
+        if (Held("Backward")) target.localPosition += new Vector3(0, -s, 0);
+        if (Held("zoomin")) target.localPosition += new Vector3(0, 0, s);
+        if (Held("zoomout")) target.localPosition += new Vector3(0, 0, -s);
     }
 }
