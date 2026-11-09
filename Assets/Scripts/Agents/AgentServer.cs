@@ -19,6 +19,12 @@ using UnityEngine.Rendering.HighDefinition;
 //   step {n: 0..4}                show the green part of step n on this engine (VR scenario)
 // Optional  -scenario 1|2 : inspected parts of scenario 1 (2023 2D) or 2 (2023 VR, default).
 //   viewpoint {n: 1..5}  eye {x,y,z,lx,ly,lz}   view {w,h}   first-person view
+// 2026-11 (harness v2, players kept open between runs):
+//   scenario {n: 1|2}             move the green parts to the parts of scenario n (no restart)
+//   trial {n: 1|0}                2023 training scene on/off (ScenarioManager.isTrial: the engine
+//                                 is replaced by the training model); viewpoints then face it
+//   reset                         also back to standpoint 1, out-of-range memory and collision
+//                                 flags cleared, after the physics has settled
 public class AgentServer : AgentLink
 {
     SIMU_DirectTeleop_SUB teleop;
@@ -70,6 +76,8 @@ public class AgentServer : AgentLink
         targetPos0 = Target.localPosition; targetRot0 = Target.localRotation;
         ikPos0 = urTarget.ik.position; ikRot0 = urTarget.ik.rotation;
         railPos0 = Rail.localPosition;
+        if (sm != null) scenario2Parts = new[] { sm.s1p1, sm.s1p2, sm.s1p3, sm.s1p4 }.Select(g => g.transform.position).ToArray();
+        EngineCenter(); // cached while the engine is active (it is hidden in the training scene)
         scenario = ArgInt("-scenario", 2);
         if (scenario == 1 && sm != null) PlaceScenario1Parts();
         foreach (var s in SegmentFlags()) { segmentHits[s.Key] = 0; segmentWas[s.Key] = s.Value; }
@@ -125,7 +133,7 @@ public class AgentServer : AgentLink
     {
         viewpoints.Clear();
         Vector3 c = EngineCenter();
-        Vector3 p = ActivePart() != null ? ActivePart().position : new Vector3(c.x, 1.1f, -0.65f);
+        Vector3 p = Focus();
         viewpoints.Add(new Pose(new Vector3(p.x - 0.9f, EyeY, 0.45f), Quaternion.identity));
         viewpoints.Add(new Pose(new Vector3(p.x + 0.9f, EyeY, 0.45f), Quaternion.identity));
         viewpoints.Add(new Pose(new Vector3(p.x, EyeY + 0.1f, -2.35f), Quaternion.identity));
@@ -155,8 +163,32 @@ public class AgentServer : AgentLink
         BuildViewpoints(null); // follows the green part of the current step
         var vp = viewpoints[n - 1];
         eye.transform.position = vp.position;
+        eye.transform.LookAt(Focus()); // the participant looks at the green part (or the training model)
+    }
+
+    // What the standpoints face: the green part of the step; in the training scene, the training
+    // model; otherwise the engine at part height.
+    Vector3 Focus()
+    {
+        if (sm != null && sm.isTrial && sm.trial != null)
+        {
+            var rs = sm.trial.GetComponentsInChildren<Renderer>();
+            if (rs.Length > 0) { var b = rs[0].bounds; foreach (var x in rs) b.Encapsulate(x.bounds); return b.center; }
+        }
         var part = ActivePart();
-        eye.transform.LookAt(part != null ? part.position : EngineCenter()); // the participant looks at the green part
+        if (part != null) return part.position;
+        Vector3 c = EngineCenter();
+        return new Vector3(c.x, 1.1f, -0.65f);
+    }
+
+    Vector3[] scenario2Parts;   // positions of s1p1..s1p4 as authored (scenario 2)
+
+    void SetScenario(int n)
+    {
+        if (n != 1 && n != 2) throw new ArgumentException("scenario must be 1 or 2");
+        if (n == 1) PlaceScenario1Parts();
+        else { var parts = new[] { sm.s1p1, sm.s1p2, sm.s1p3, sm.s1p4 }; for (int i = 0; i < 4; i++) parts[i].transform.position = scenario2Parts[i]; }
+        scenario = n;
     }
 
     // First-person render for the agent. The floating panels of the VR interface (instructions,
@@ -280,15 +312,32 @@ public class AgentServer : AgentLink
             case "view":
                 yield return EyeRender(req, reply);
                 break;
+            case "scenario":
+                SetScenario(req.n);
+                yield return null;
+                ApplyViewpoint(currentViewpoint);
+                FillState(reply);
+                break;
+            case "trial":
+                if (sm == null) { reply.Fail("no ScenarioManager"); break; }
+                sm.isTrial = req.n == 1;
+                yield return null;   // ScenarioManager.Update swaps the engine and the training model
+                yield return new WaitForFixedUpdate();
+                ApplyViewpoint(currentViewpoint);
+                FillState(reply);
+                break;
             case "reset":
                 Target.localPosition = targetPos0; Target.localRotation = targetRot0;
                 urTarget.ik.SetPositionAndRotation(ikPos0, ikRot0);
                 Rail.localPosition = railPos0;
-                yield return null;
-                yield return null;
+                // let the IK, the robot model and the trigger colliders settle at the start pose
+                // before clearing the counters (a run must not inherit contacts from the previous one)
+                for (int f = 0; f < 10; f++) { yield return new WaitForFixedUpdate(); yield return null; }
                 collisions.count = 0;
                 foreach (var k in segmentHits.Keys.ToList()) segmentHits[k] = 0;
+                foreach (var s in SegmentFlags()) segmentWas[s.Key] = s.Value;
                 lastPressed = "";
+                ApplyViewpoint(1);
                 FillState(reply);
                 break;
             default:
@@ -379,6 +428,7 @@ public class AgentServer : AgentLink
                 }
             }
         }
+        r["focus"] = V3(Focus());   // what the standpoints face (green part, or the training model)
         r["robot_base"] = V3(Rail.position);
         r["rail_axis"] = V3(Rail.parent != null ? Rail.parent.TransformDirection(Vector3.right).normalized : Vector3.right);
         r["target_world"] = V3(Target.position);
@@ -388,6 +438,7 @@ public class AgentServer : AgentLink
     void FillState(Reply r)
     {
         r["scenario"] = scenario;
+        r["trial"] = sm != null && sm.isTrial;
         var T = Target;
         var ik = urTarget.ik;
         float posErr = Vector3.Distance(ik.position, T.position);
