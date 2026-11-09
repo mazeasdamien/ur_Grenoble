@@ -181,6 +181,26 @@ public class AgentServer : AgentLink
         return new Vector3(c.x, 1.1f, -0.65f);
     }
 
+    // Green marker of the 2023 training model (world = EngineRoomScene's "environment" frame): the
+    // clearly green renderer of sm.trial nearest to the robot base. Only meaningful when the training
+    // scene is shown; the renderers are searched including inactive ones, so it can be read beforehand.
+    bool TrialMarker(out Vector3 p)
+    {
+        p = default;
+        if (sm == null || sm.trial == null) return false;
+        float best = float.MaxValue; bool found = false;
+        foreach (var r in sm.trial.GetComponentsInChildren<Renderer>(true))
+            foreach (var m in r.sharedMaterials)
+            {
+                if (m == null) continue;
+                Color c = m.HasProperty("_BaseColor") ? m.GetColor("_BaseColor") : m.HasProperty("_Color") ? m.color : Color.black;
+                if (!(c.g > 0.35f && c.g > c.r + 0.15f && c.g > c.b + 0.15f)) continue;
+                float d = Vector3.Distance(Rail.position, r.bounds.center);
+                if (d < best) { best = d; p = r.bounds.center; found = true; }
+            }
+        return found;
+    }
+
     Vector3[] scenario2Parts;   // positions of s1p1..s1p4 as authored (scenario 2)
 
     void SetScenario(int n)
@@ -429,6 +449,7 @@ public class AgentServer : AgentLink
             }
         }
         r["focus"] = V3(Focus());   // what the standpoints face (green part, or the training model)
+        if (TrialMarker(out var tm)) r["trial_marker"] = V3(tm);   // green marker of the training scene (known-target diagnostic)
         r["robot_base"] = V3(Rail.position);
         r["rail_axis"] = V3(Rail.parent != null ? Rail.parent.TransformDirection(Vector3.right).normalized : Vector3.right);
         r["target_world"] = V3(Target.position);
