@@ -17,6 +17,7 @@ using UnityEngine.Rendering.HighDefinition;
 //                                 (metres / degrees, target-parent frame; <= 0.3 m and 45 deg)
 //   rail {dx}                     immersive condition: the two VR push buttons of the linear rail
 //   step {n: 0..4}                show the green part of step n on this engine (VR scenario)
+// Optional  -scenario 1|2 : inspected parts of scenario 1 (2023 2D) or 2 (2023 VR, default).
 //   viewpoint {n: 1..5}  eye {x,y,z,lx,ly,lz}   view {w,h}   first-person view
 public class AgentServer : AgentLink
 {
@@ -69,6 +70,8 @@ public class AgentServer : AgentLink
         targetPos0 = Target.localPosition; targetRot0 = Target.localRotation;
         ikPos0 = urTarget.ik.position; ikRot0 = urTarget.ik.rotation;
         railPos0 = Rail.localPosition;
+        scenario = ArgInt("-scenario", 2);
+        if (scenario == 1 && sm != null) PlaceScenario1Parts();
         foreach (var s in SegmentFlags()) { segmentHits[s.Key] = 0; segmentWas[s.Key] = s.Value; }
 
         // First-person camera: same lighting/HDRP settings as the participant's head camera.
@@ -169,6 +172,26 @@ public class AgentServer : AgentLink
         reply["ui_hidden"] = hidden.Count;
         yield return RenderCamera(eye, req.w > 0 ? req.w : 1280, req.h > 0 ? req.h : 720, reply);
         foreach (var c in hidden) if (c != null) c.enabled = true;
+    }
+
+    int scenario = 2;
+
+    // 2026 (agent study, scenario crossed with the interface): the green parts of this scene are
+    // those of scenario 2. For scenario 1 they move to the parts of the 2D scenario, whose positions
+    // are the local positions of s1p1..s1p4 in EngineRoomScene's "environment" frame, i.e. this
+    // scene's world frame. Part shapes stay those of scenario 2; only their positions change.
+    static readonly Vector3[] Scenario1Parts =
+    {
+        new Vector3(0.0171f, 1.0209f, -0.6997f),
+        new Vector3(0.6501f, 1.0494f, -0.7294f),
+        new Vector3(0.377f, 1.0219f, -0.6984f),
+        new Vector3(1.0726f, 1.0162f, -0.7033f),
+    };
+
+    void PlaceScenario1Parts()
+    {
+        var parts = new[] { sm.s1p1, sm.s1p2, sm.s1p3, sm.s1p4 };
+        for (int i = 0; i < 4; i++) parts[i].transform.position = Scenario1Parts[i];
     }
 
     Transform ActivePart()
@@ -364,6 +387,7 @@ public class AgentServer : AgentLink
 
     void FillState(Reply r)
     {
+        r["scenario"] = scenario;
         var T = Target;
         var ik = urTarget.ik;
         float posErr = Vector3.Distance(ik.position, T.position);
